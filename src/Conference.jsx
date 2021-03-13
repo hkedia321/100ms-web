@@ -98,6 +98,20 @@ class Conference extends React.Component {
       this.pollForMid(0);
       console.log('Got stream', this.state.localStream.mid);
     }
+    if (this.props.isWhiteboardSharing !== prevProps.isWhiteboardSharing) {
+      if (this.props.isWhiteboardSharing) {
+        this.setState({
+          pinned: 'whiteboard',
+          mode: modes.PINNED
+        })
+      }
+      else {
+        this.setState({
+          pinned: false,
+          mode: modes.GALLERY
+        })
+      }
+    }
   }
 
   componentWillUnmount = () => {
@@ -196,10 +210,13 @@ class Conference extends React.Component {
       });
   };
 
+  
+
   handleScreenSharing = async enabled => {
     let { localScreen } = this.state;
     const { client, settings } = this.props;
     if (enabled) {
+      this.props.closeWhiteBoardSharing();
       localScreen = await client.getLocalScreen({
         bitrate: 0,
         codec: settings.codec.toUpperCase(),
@@ -327,7 +344,6 @@ class Conference extends React.Component {
     let videoCount = streams.length;
     if (localStream) videoCount++;
     if (localScreen) videoCount++;
-
     return (
       <>
         {this.state.mode === modes.PINNED ? (
@@ -348,6 +364,8 @@ class Conference extends React.Component {
               });
             }}
             onRequest={this._onRequest}
+            isWhiteboardSharing={this.props.isWhiteboardSharing}
+            whiteBoardSharingScreen={this.props.whiteBoardSharingScreen}
           />
         ) : (
           <Gallery
@@ -367,6 +385,8 @@ class Conference extends React.Component {
               });
             }}
             onRequest={this._onRequest}
+            isWhiteboardSharing={this.props.isWhiteboardSharing}
+            whiteBoardSharingScreen={this.props.whiteBoardSharingScreen}
           />
         )}
         <Controls
@@ -384,6 +404,8 @@ class Conference extends React.Component {
           onChatToggle={this.props.onChatToggle}
           isChatOpen={this.props.isChatOpen}
           loginInfo={this.props.loginInfo}
+          isWhiteboardSharing={this.props.isWhiteboardSharing}
+          onWhiteboardToggle={this.props.onWhiteboardToggle}
         />
         {this.state.localStreamError && (
           <Modal

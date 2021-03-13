@@ -7,6 +7,7 @@ import MicrophoneOffIcon from 'mdi-react/MicrophoneOffIcon';
 import PhoneHangupIcon from 'mdi-react/PhoneHangupIcon';
 import TelevisionIcon from 'mdi-react/TelevisionIcon';
 import TelevisionOffIcon from 'mdi-react/TelevisionOffIcon';
+import WhiteboardIcon from 'mdi-react/BulletinBoardIcon';
 import VideoCheckIcon from 'mdi-react/VideoCheckIcon';
 import ToolShare from '../../ToolShare';
 
@@ -21,6 +22,8 @@ const Controls = ({
   onLeave,
   onChatToggle,
   loginInfo,
+  isWhiteboardSharing,
+  onWhiteboardToggle
 }) => {
   return (
     <div
@@ -100,6 +103,15 @@ const Controls = ({
           label="Chat"
           onClick={onChatToggle}
           isActive={isChatOpen}
+        />
+      </div>
+      <div className="mx-1">
+        <ControlButton
+          icon={<WhiteboardIcon className="text-indigo-100" />}
+          activeIcon={<WhiteboardIcon className="text-red-100" />}
+          label="WhiteBoard"
+          isActive={isWhiteboardSharing}
+          onClick={onWhiteboardToggle}
         />
       </div>
       <div className="ml-1">

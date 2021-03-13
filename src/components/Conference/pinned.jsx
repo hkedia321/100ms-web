@@ -1,5 +1,5 @@
 import React from 'react';
-import { LocalVideoView, MainVideoView, SmallVideoView } from '../../videoview';
+import { LocalVideoView, MainVideoView, SmallVideoView, WhiteboardView } from '../../videoview';
 
 const Pinned = ({
   id,
@@ -13,8 +13,9 @@ const Pinned = ({
   pinned,
   loginInfo,
   onRequest,
+  isWhiteboardSharing,
+  whiteBoardSharingScreen
 }) => {
-  console.log(pinned, streams);
   const isLocalScreenPinned = localScreen && pinned === id + '-screen';
   const isLocalStreamPinned = localStream && pinned === id + '-video';
   const pinnedStream = streams.filter(s => s.sid === pinned)[0];
@@ -26,6 +27,22 @@ const Pinned = ({
       style={{ height: 'calc(100vh - 128px)', backgroundColor: '#1a1619' }}
     >
       <div className="w-4/5 h-full">
+        { isWhiteboardSharing && (
+          <WhiteboardView
+           id={id + '-whiteboard'}
+           label='Whiteboard'
+           client={client}
+           whiteBoardSharingScreen={whiteBoardSharingScreen}
+           audioMuted={audioMuted}
+            videoMuted={videoMuted}
+            pinned
+            onUnpin={() => {
+              onUnpin();
+            }}
+          />
+        )
+
+        }
         {isLocalStreamPinned && (
           <LocalVideoView
             id={id + '-video'}

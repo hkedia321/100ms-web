@@ -8,6 +8,7 @@ import ChatFeed from './chat/index';
 import Message from './chat/message';
 import bLogo from '../public/logo-blue-dark.svg';
 import '../styles/css/app.scss';
+import {generateExcaliLink} from './utils/whiteboard';
 
 import LoginForm from './LoginForm';
 import Conference from './Conference';
@@ -42,6 +43,8 @@ class App extends React.Component {
       localAudioEnabled: true,
       localVideoEnabled: true,
       screenSharingEnabled: false,
+      whiteboardSharingEnabled: false,
+      whiteBoardSharingScreen: null,
       collapsed: true,
       isFullScreen: false,
       vidFit: false,
@@ -144,6 +147,16 @@ class App extends React.Component {
 
     client.on('peer-join', (room, peer) => {
       this._notification('Peer Join', `peer => ${peer.name} joined ${room}!`);
+      var info = {
+        senderName: this.state.loginInfo.displayName,
+        msg: {
+          type: "WHITEBOARD",
+          whiteboardSharingEnabled: this.state.whiteboardSharingEnabled,
+          whiteBoardSharingScreen: this.state.whiteBoardSharingScreen
+        },
+      };
+      // send info to other clients
+      this.client.broadcast(info, this.client.rid);
     });
 
     client.on('peer-leave', (room, peer) => {
@@ -174,7 +187,16 @@ class App extends React.Component {
 
     client.on('broadcast', (room, peer, message) => {
       console.log('broadcast: ', room, peer.name, message);
-      this._onMessageReceived(peer.name, message);
+      if (message.type === "WHITEBOARD") {
+        // set whiteboard when received broadcast from other client
+        this.setState({
+          whiteboardSharingEnabled: message.whiteboardSharingEnabled, 
+          whiteBoardSharingScreen: message.whiteBoardSharingScreen,
+        })
+      }
+      else {
+        this._onMessageReceived(peer.name, message);
+      }
     });
 
     client.on('disconnected', async () => {
@@ -249,6 +271,65 @@ class App extends React.Component {
     });
     this.conference.handleScreenSharing(enabled);
   };
+
+  _handleWhiteBoardSharing = enabled => {
+    //whiteboardsharing
+    const whiteBoardSharingScreen = {
+      ...this.state.whiteBoardSharingScreen
+    }
+    if (whiteBoardSharingScreen.ownerUid && (whiteBoardSharingScreen.ownerUid !== this.client.uid)) {
+      // this user is not owner
+      return;
+    }
+    if (enabled) {
+      this.conference.handleScreenSharing(false);// disable screen sharing if active
+      // generate new whiteboard link
+      const whiteboardLink = generateExcaliLink();
+      whiteBoardSharingScreen.whiteboardLink = whiteboardLink;
+      whiteBoardSharingScreen.ownerUid = this.client.uid;
+      var info = {
+        senderName: this.state.loginInfo.displayName,
+        msg: {
+          type: "WHITEBOARD",
+          whiteboardSharingEnabled: enabled,
+          whiteBoardSharingScreen: whiteBoardSharingScreen
+        },
+      };
+      // send info to other clients
+      this.client.broadcast(info, this.client.rid);
+    }
+    else {
+      var info = {
+        senderName: this.state.loginInfo.displayName,
+        msg: {
+          type: "WHITEBOARD",
+          whiteboardSharingEnabled: enabled,
+          whiteBoardSharingScreen: null
+        },
+      };
+      this.client.broadcast(info, this.client.rid);
+    }
+    this.setState({
+      whiteBoardSharingScreen,
+      whiteboardSharingEnabled: enabled
+    })
+  }
+
+  closeWhiteBoardSharing = () => {
+    this.setState({
+      whiteBoardSharingScreen: null,
+      whiteboardSharingEnabled: false
+    })
+    var info = {
+      senderName: this.state.loginInfo.displayName,
+      msg: {
+        type: "WHITEBOARD",
+        whiteboardSharingEnabled: false,
+        whiteBoardSharingScreen: null
+      },
+    };
+    this.client.broadcast(info, this.client.rid);
+  }
 
   _onRef = ref => {
     this.conference = ref;
@@ -378,6 +459,8 @@ class App extends React.Component {
       localAudioEnabled,
       localVideoEnabled,
       screenSharingEnabled,
+      whiteboardSharingEnabled,
+      whiteBoardSharingScreen,
       collapsed,
       vidFit,
     } = this.state;
@@ -451,6 +534,12 @@ class App extends React.Component {
                       }
                       isChatOpen={!this.state.collapsed}
                       cleanUp={this._cleanUp}
+                      isWhiteboardSharing={whiteboardSharingEnabled}
+                      whiteBoardSharingScreen={whiteBoardSharingScreen}
+                      onWhiteboardToggle={()=>
+                        this._handleWhiteBoardSharing(!whiteboardSharingEnabled)
+                      }
+                      closeWhiteBoardSharing={this.closeWhiteBoardSharing}
                     />
                   </div>
                 </Content>
