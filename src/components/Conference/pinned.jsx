@@ -14,7 +14,8 @@ const Pinned = ({
   loginInfo,
   onRequest,
   isWhiteboardSharing,
-  whiteBoardSharingScreen
+  whiteBoardSharingScreen,
+  handleLockWhiteBoardSharing
 }) => {
   const isLocalScreenPinned = localScreen && pinned === id + '-screen';
   const isLocalStreamPinned = localStream && pinned === id + '-video';
@@ -32,6 +33,7 @@ const Pinned = ({
            id={id + '-whiteboard'}
            label='Whiteboard'
            client={client}
+           handleLockWhiteBoardSharing={handleLockWhiteBoardSharing}
            whiteBoardSharingScreen={whiteBoardSharingScreen}
            audioMuted={audioMuted}
             videoMuted={videoMuted}

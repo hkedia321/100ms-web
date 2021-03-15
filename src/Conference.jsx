@@ -366,6 +366,7 @@ class Conference extends React.Component {
             onRequest={this._onRequest}
             isWhiteboardSharing={this.props.isWhiteboardSharing}
             whiteBoardSharingScreen={this.props.whiteBoardSharingScreen}
+            handleLockWhiteBoardSharing={this.props.handleLockWhiteBoardSharing}
           />
         ) : (
           <Gallery
@@ -387,6 +388,7 @@ class Conference extends React.Component {
             onRequest={this._onRequest}
             isWhiteboardSharing={this.props.isWhiteboardSharing}
             whiteBoardSharingScreen={this.props.whiteBoardSharingScreen}
+            handleLockWhiteBoardSharing={this.props.handleLockWhiteBoardSharing}
           />
         )}
         <Controls

@@ -155,6 +155,7 @@ class App extends React.Component {
           whiteBoardSharingScreen: this.state.whiteBoardSharingScreen
         },
       };
+      console.log("PEER_JOIN_WHITEBOARD_BROADCAST", {info})
       // send info to other clients
       this.client.broadcast(info, this.client.rid);
     });
@@ -313,6 +314,26 @@ class App extends React.Component {
       whiteBoardSharingScreen,
       whiteboardSharingEnabled: enabled
     })
+  }
+
+  handleLockWhiteBoardSharing = (enabled) => {
+    const whiteBoardSharingScreen = {
+      ...this.state.whiteBoardSharingScreen
+    }
+    whiteBoardSharingScreen.lockEditingByOthers = enabled;
+    this.setState({
+      whiteBoardSharingScreen
+    })
+    var info = {
+      senderName: this.state.loginInfo.displayName,
+      msg: {
+        type: "WHITEBOARD",
+        whiteboardSharingEnabled: this.state.whiteboardSharingEnabled,
+        whiteBoardSharingScreen: whiteBoardSharingScreen
+      },
+    };
+    // send info to other clients
+    this.client.broadcast(info, this.client.rid);
   }
 
   closeWhiteBoardSharing = () => {
@@ -540,6 +561,7 @@ class App extends React.Component {
                         this._handleWhiteBoardSharing(!whiteboardSharingEnabled)
                       }
                       closeWhiteBoardSharing={this.closeWhiteBoardSharing}
+                      handleLockWhiteBoardSharing={this.handleLockWhiteBoardSharing}
                     />
                   </div>
                 </Content>
